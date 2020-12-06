@@ -8,7 +8,7 @@ stage('Build')
 {
 steps
 {
-sh 'clean'
+sh 'mvn clean'
 }
 
 }
@@ -22,7 +22,7 @@ echo 'deploying the code'
 stage('test')
 {
 steps{
-sh 'test'
+sh 'mvn test'
 }
 
 }
@@ -30,7 +30,7 @@ sh 'test'
 stage('Unit Testing')
 {
 steps{
-sh 'compile'
+sh 'mvn compile'
 }
 
 }
