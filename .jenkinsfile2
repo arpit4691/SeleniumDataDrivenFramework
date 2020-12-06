@@ -22,7 +22,7 @@ echo 'deploying the code'
 stage('test')
 {
 steps{
-sh 'test the project'
+echo 'test the project'
 }
 
 }
@@ -30,7 +30,7 @@ sh 'test the project'
 stage('Unit Testing')
 {
 steps{
-sh 'unit testing'
+echo 'unit testing'
 }
 
 }
