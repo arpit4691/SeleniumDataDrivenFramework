@@ -1,65 +1,54 @@
-pipeline
-{
-agent any
+pipeline {
+    agent any
+    stages {
+        stage ('Clone') {
+            steps {
+                git branch: 'master', url: "https://github.com/jfrog/project-examples.git"
+            }
+        }
 
-stages
-{
-stage('Build')
-{
-steps
-{
-echo 'Build Project'
-}
+        stage ('Artifactory configuration') {
+            steps {
+                rtServer (
+                    id: "ARTIFACTORY_SERVER",
+                    url: SERVER_URL,
+                    credentialsId: CREDENTIALS
+                )
 
-}
-stage('deploy')
-{
-steps{
-echo 'deploying the code'
-}
+                rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: "ARTIFACTORY_SERVER",
+                    releaseRepo: "libs-release-local",
+                    snapshotRepo: "libs-snapshot-local"
+                )
 
-}
-stage('test')
-{
-steps{
-echo 'test the project'
-}
+                rtMavenResolver (
+                    id: "MAVEN_RESOLVER",
+                    serverId: "ARTIFACTORY_SERVER",
+                    releaseRepo: "libs-release",
+                    snapshotRepo: "libs-snapshot"
+                )
+            }
+        }
 
-}
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: MAVEN_TOOL, // Tool name from Jenkins configuration
+                    pom: 'maven-example/pom.xml',
+                    goals: 'clean install',
+                    deployerId: "MAVEN_DEPLOYER",
+                    resolverId: "MAVEN_RESOLVER"
+                )
+            }
+        }
 
-stage('Unit Testing')
-{
-steps{
-echo 'unit testing'
-}
-
-}
-
-stage('Create build output')
-{
-steps{
-	// Make the output directory.
-    sh "mkdir -p output"
-
-    // Write an useful file, which is needed to be archived.
-    writeFile file: "output/usefulfile.txt", text: "This file is useful, need to archive it."
-
-    // Write an useless file, which is not needed to be archived.
-    writeFile file: "output/uselessfile.md", text: "This file is useless, no need to archive it."
-}
-}
-    
-stage('Release')
-{
-when{
-branch 'origin/main'
-}
-steps{
-echo 'releasing the project'
-}
-
-}
-
-}
-
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "ARTIFACTORY_SERVER"
+                )
+            }
+        }
+    }
 }
