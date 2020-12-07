@@ -19,7 +19,6 @@ pipeline {
         echo 'Maven build'
     }
     }
-
     stage('Publish build info') {
     steps{
         echo 'Publish build info'
