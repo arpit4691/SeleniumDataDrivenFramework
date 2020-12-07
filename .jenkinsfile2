@@ -10,23 +10,19 @@ pipeline {
 }
     stage('Artifactory configuration') {
     steps{
-        // Tool name from Jenkins configuration
-        Artifactory.newMavenBuild().tool = "Maven-3.3.9"
-        // Set Artifactory repositories for dependencies resolution and artifacts deployment.
-        Artifactory.newMavenBuild().deployer releaseRepo:'libs-release-local', snapshotRepo:'libs-snapshot-local', server: server
-        Artifactory.newMavenBuild().resolver releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
+        echo 'Artifactory configuration'
     }
     }
 
     stage('Maven build') {
     steps{
-        Artifactory.newMavenBuild().run pom: 'DataDrivenFramework/pom.xml', goals: 'clean install'
+        echo 'Maven build'
     }
     }
 
     stage('Publish build info') {
     steps{
-        server.publishBuildInfo buildInfo
+        echo 'Publish build info'
     }
     }
 }
